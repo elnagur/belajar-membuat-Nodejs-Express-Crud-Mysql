@@ -3,6 +3,9 @@ const koneksi = require('./config/database');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const multer = require('multer')
 const path = require('path')
 
@@ -79,19 +82,18 @@ app.get('/api/film', (req, res) => {
 
 
 // update data
-app.put('/api/film/:nim', (req, res) => {
+app.put('/api/film/:id', (req, res) => {
     // buat variabel penampung data dan query sql
     const data = { ...req.body };
-    const querySearch = 'SELECT * FROM film WHERE nim = ?';
-    const nim = req.body.nim;
-    const nama = req.body.nama;
-    const tanggal_lahir = req.body.tanggal_lahir;
-    const alamat = req.body.alamat;
+    const querySearch = 'SELECT * FROM film WHERE id= ?';
+    const judul= req.body.judul;
+    const sutradara= req.body.sutradara;
+    const tahun= req.body.tahun;
 
-    const queryUpdate = 'UPDATE film SET nama=?,tanggal_lahir=?,alamat=? WHERE nim = ?';
+    const queryUpdate = 'UPDATE film SET judul=?,tahun=?,sutradara=? WHERE id= ?';
 
     // jalankan query untuk melakukan pencarian data
-    koneksi.query(querySearch, req.params.nim, (err, rows, field) => {
+    koneksi.query(querySearch, req.params.id, (err, rows, field) => {
         // error handling
         if (err) {
             return res.status(500).json({ message: 'Ada kesalahan', error: err });
@@ -100,7 +102,7 @@ app.put('/api/film/:nim', (req, res) => {
         // jika id yang dimasukkan sesuai dengan data yang ada di db
         if (rows.length) {
             // jalankan query update
-            koneksi.query(queryUpdate, [nama,tanggal_lahir,alamat, req.params.nim], (err, rows, field) => {
+            koneksi.query(queryUpdate, [judul,tahun,sutradara, req.params.id], (err, rows, field) => {
                 // error handling
                 if (err) {
                     return res.status(500).json({ message: 'Ada kesalahan', error: err });
@@ -116,13 +118,13 @@ app.put('/api/film/:nim', (req, res) => {
 });
 
 // delete data
-app.delete('/api/film/:nim', (req, res) => {
+app.delete('/api/film/:id', (req, res) => {
     // buat query sql untuk mencari data dan hapus
-    const querySearch = 'SELECT * FROM film WHERE nim = ?';
-    const queryDelete = 'DELETE FROM film WHERE nim = ?';
+    const querySearch = 'SELECT * FROM film WHERE id = ?';
+    const queryDelete = 'DELETE FROM film WHERE id = ?';
 
     // jalankan query untuk melakukan pencarian data
-    koneksi.query(querySearch, req.params.nim, (err, rows, field) => {
+    koneksi.query(querySearch, req.params.id, (err, rows, field) => {
         // error handling
         if (err) {
             return res.status(500).json({ message: 'Ada kesalahan', error: err });
@@ -131,7 +133,7 @@ app.delete('/api/film/:nim', (req, res) => {
         // jika id yang dimasukkan sesuai dengan data yang ada di db
         if (rows.length) {
             // jalankan query delete
-            koneksi.query(queryDelete, req.params.nim, (err, rows, field) => {
+            koneksi.query(queryDelete, req.params.id, (err, rows, field) => {
                 // error handling
                 if (err) {
                     return res.status(500).json({ message: 'Ada kesalahan', error: err });
